@@ -1,67 +1,60 @@
-import { SubjectMaster } from "../models/subjectMasterSchema.js"
 import { Syllabus } from "../models/syllabusSchema.js"
+
 
 const addSyllabus = async (req, res) => {
     try {
+        const { subjectMasterId, status } = req.body;
 
-        //get user details from frontend
-        const { subjectMasterId, status } = req.body
-        console.log(req.body, "llll")
-
-        //validation
+        // validation
         if (!status) {
             return res.status(400).json({
                 status: "failed",
                 message: "Please provide all fields",
-            })
+            });
         }
 
-        //check if user already exists or not
-
-        let existedSyllabus = await Syllabus.findOne({ subjectMasterId }).populate('syllabusReference').exec()
-        console.log(existedSyllabus, "ff")
+        // check if user already exists or not
+        let existedSyllabus = await Syllabus.findOne({ subjectMasterId }).populate('subjectMasterId').exec();
 
         if (existedSyllabus) {
             return res.status(409).json({
                 status: "failed",
-                message: "Syllabus already exists"
-            })
+                message: "Syllabus already exists",
+            });
         } else {
             const newSyllabus = new Syllabus({
-                existedSyllabus
-            })
-            await newSyllabus.save()
+                subjectMasterId,
+                status,
+            });
+            await newSyllabus.save();
 
-            existedSyllabus = await Syllabus.findOne({ subjectMasterId }).populate('syllabusReference').exec()
+            const populatedSyllabus = await Syllabus.findById(newSyllabus._id).populate('subjectMasterId').exec();
 
-
-
-            if (!newSyllabus) {
+            if (!populatedSyllabus) {
                 return res.status(500).json({
                     status: 'error',
-                    message: "something went wrong while adding the Syllabus"
-                })
+                    message: "something went wrong while adding the Syllabus",
+                });
             } else {
-                //return response
+                // return response
                 return res.status(200).json({
                     status: "success",
-                    message: "Syllabus addeds successfully",
-                    existedSyllabus
-                })
+                    message: "Syllabus added successfully",
+                    syllabus: populatedSyllabus,
+                });
             }
         }
-
     } catch (error) {
-        console.log(error)
+        console.log(error);
     }
-}
+};
 
 
 const getSyllabusById = async (req, res) => {
     try {
         const { id } = req.body
 
-        const syllabus = await Syllabus.findById(id)
+        const syllabus = await Syllabus.findById(id).populate('subjectMasterId').exec();
         return res
             .status(200)
             .json({
@@ -76,7 +69,7 @@ const getSyllabusById = async (req, res) => {
 
 const getAllSyllabus = async (req, res) => {
     try {
-        const syllabus = await syllabus.findOne()
+        const syllabus = await Syllabus.findOne().populate('subjectMasterId').exec();
 
         return res
             .status(200)
@@ -95,11 +88,11 @@ const updateSyllabus = async (req, res) => {
     try {
         const { id } = req.params
 
-        const updatedSyllabus = await Hostel.findByIdAndUpdate(
+        const updatedSyllabus = await Syllabus.findByIdAndUpdate(
             id,
             req.body,
             { new: true }
-        )
+        ).populate('subjectMasterId').exec();
 
 
         return res
@@ -120,7 +113,7 @@ const deleteSyllabus = async (req, res) => {
 
         const { id } = req.body
 
-        const deletedSyllabus = await Syllabus.findByIdAndDelete(id)
+        const deletedSyllabus = await Syllabus.findByIdAndDelete(id).populate('subjectMasterId').exec();
 
         return res
             .status(200)
