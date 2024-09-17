@@ -10,9 +10,8 @@ const SyllabusSchema = new Schema(
             ref: "SubjectMaster",
             // required: true,
         },
-
         status: {
-            type: Boolean,
+            type: String,
             // required: true
         }
     },

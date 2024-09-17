@@ -17,7 +17,9 @@ const addSyllabus = async (req, res) => {
         }
 
         //check if user already exists or not
-        const existedSyllabus = await Syllabus.findOne({ subjectMasterId }).populate('subjectMaster').exec()
+
+        let existedSyllabus = await Syllabus.findOne({ subjectMasterId }).populate('syllabusReference').exec()
+        console.log(existedSyllabus, "ff")
 
         if (existedSyllabus) {
             return res.status(409).json({
@@ -30,6 +32,9 @@ const addSyllabus = async (req, res) => {
             })
             await newSyllabus.save()
 
+            existedSyllabus = await Syllabus.findOne({ subjectMasterId }).populate('syllabusReference').exec()
+
+
 
             if (!newSyllabus) {
                 return res.status(500).json({
@@ -41,7 +46,7 @@ const addSyllabus = async (req, res) => {
                 return res.status(200).json({
                     status: "success",
                     message: "Syllabus addeds successfully",
-                    newSyllabus
+                    existedSyllabus
                 })
             }
         }

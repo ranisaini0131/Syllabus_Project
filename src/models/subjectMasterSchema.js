@@ -7,11 +7,11 @@ const subjectMasterSchema = new Schema(
 
     {
 
-        subjectMasterId: {
-            type: String,
-            // required: true
+        syllabusReference: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Syllabus",
+            // required: true,
         },
-
         classes: {
             type: String,
             required: true
@@ -26,6 +26,11 @@ const subjectMasterSchema = new Schema(
         subjectGroup: {
             type: String,
             required: true
+        },
+
+        status: {
+            type: Boolean,
+            // required: true
         }
 
     },
